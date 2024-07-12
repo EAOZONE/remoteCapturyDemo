@@ -26,7 +26,6 @@ public class psyonicController
    {
       try
       {
-         System.out.println("Disconnecting from hands");
          bleManager.disconnect();
       }
       catch(InterruptedException e)
@@ -151,7 +150,6 @@ public class psyonicController
    }
    public void sendCommand()
    {
-      System.out.println("Sending command");
       bleManager.sendIndividualCommand(handAddresses[0], leftHandControlCommand);
       bleManager.sendIndividualCommand(handAddresses[1], rightHandControlCommand);
    }
