@@ -28,6 +28,7 @@ public class remoteCapturyControl
    private final int ACTOR_ID = 30000;
    private static CapturyPose pose;
    private final psyonicController psyonicControl = new psyonicController();
+   private int numOfHands = 0;
 
    public remoteCapturyControl() {
       for (int i = 0; i < jointNames.length; i++) {
@@ -68,7 +69,11 @@ public class remoteCapturyControl
       }
       // Start tracking
       connect();
-      psyonicControl.bluetoothConnect();
+      while(numOfHands < 2)
+      {
+         numOfHands = psyonicControl.bluetoothConnect();
+      }
+      System.out.println("Number of hands connected: " + numOfHands);
       psyonicControl.setFingerSpeeds();
       getActor();
    }
@@ -108,7 +113,7 @@ public class remoteCapturyControl
    public void stopConnection()
    {
       // Disconnects from All connected software
-      //      psyonicControl.bluetoothDisconnect();
+      psyonicControl.bluetoothDisconnect();
       Captury_deleteActor(ACTOR_ID);
       Captury_stopTracking(ACTOR_ID); // TODO: does this need to come before deleteActor?
       Captury_stopStreaming();
@@ -133,7 +138,6 @@ public class remoteCapturyControl
       for(int i = 0; i < rightFingerTransformNum.length; i++){
          if(rightFingerTransformNum[i] == 39)
          {
-            System.out.println(pose.transforms().getPointer(39).rotation().get(0) + " " + pose.transforms().getPointer(39).rotation().get(1) + " " + pose.transforms().getPointer(39).rotation().get(2));
             psyonicControl.setFingerAngles(2*pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(0), i, 0, 1);
             psyonicControl.setFingerAngles(Math.abs(2*pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(1)), i, 1, 1);
          }
@@ -176,10 +180,6 @@ public class remoteCapturyControl
       updateTransforms();
       updateFrames();
       psyonicControl.sendCommand();
-      Runtime.getRuntime().addShutdownHook(new Thread(() ->
-                                                      {
-                                                         stopConnection();
-                                                      }));
       for (int i = 0; i < jointNames.length; i++)
       {
          // Sets the framePose with respect to the reference frame

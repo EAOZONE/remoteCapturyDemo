@@ -11,11 +11,11 @@ public class psyonicController
 
    AbilityHandBLEManager bleManager = new AbilityHandBLEManager(handAddresses);
 
-   public void bluetoothConnect()
+   public int bluetoothConnect()
    {
       try
       {
-         bleManager.connect();
+         return bleManager.connect();
       }
       catch (InterruptedException e)
       {
@@ -26,6 +26,7 @@ public class psyonicController
    {
       try
       {
+         System.out.println("Disconnecting from hands");
          bleManager.disconnect();
       }
       catch(InterruptedException e)
@@ -68,28 +69,37 @@ public class psyonicController
             }
             if(hand == 1)
             {
-               angle *= 1.5;
                rightHandControlCommand.setThumbFlexorPosition(angle);
             }
 
          }
          else
          {
-            angle = -(80 - angle);
-            if (angle > 0)
-            {
-               angle = 0;
-            }
-            else if (angle < -80)
-            {
-               angle = -90;
-            }
             if(hand == 0)
             {
+               angle = -(80 - angle);
+               if (angle > 0)
+               {
+                  angle = 0;
+               }
+               else if (angle < -80)
+               {
+                  angle = -80;
+               }
+
                leftHandControlCommand.setThumbRotatorPosition(angle);
             }
             if(hand == 1)
             {
+               angle = -(60 - angle);
+               if (angle > 0)
+               {
+                  angle = 0;
+               }
+               else if (angle < -80)
+               {
+                  angle = -80;
+               }
                rightHandControlCommand.setThumbRotatorPosition(angle);
             }
          }
@@ -141,6 +151,7 @@ public class psyonicController
    }
    public void sendCommand()
    {
+      System.out.println("Sending command");
       bleManager.sendIndividualCommand(handAddresses[0], leftHandControlCommand);
       bleManager.sendIndividualCommand(handAddresses[1], rightHandControlCommand);
    }
