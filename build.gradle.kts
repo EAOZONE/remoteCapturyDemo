@@ -14,6 +14,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("us.ihmc:remotecaptury-java:1.0.3")
     implementation("us.ihmc:psyonic-ability-hand-java:1.1.0")
+    implementation("us.ihmc:euclid:0.21.0")
+    implementation("us.ihmc:euclid-frame:0.21.0")
 }
 
 tasks.test {
