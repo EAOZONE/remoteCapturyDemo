@@ -13,12 +13,12 @@ public class remoteCapturyExample
       Runtime.getRuntime().addShutdownHook(new Thread(() ->
                                                       {
                                                          running = false;
-                                                         remoteCaptury.stopConnection();
                                                       }));
       while(running)
       {
          Thread.sleep(50);
          remoteCaptury.updatePose();
       }
+      remoteCaptury.stopConnection();
    }
 }
