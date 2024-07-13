@@ -25,7 +25,7 @@ public class remoteCapturyControl
    private final int[] fingerTransformNum = {14, 18, 22, 26, 30};
    private final int[] rightFingerTransformNum = {39, 43, 47, 51, 54};
    private final int transformNum = 0;
-   private final int ACTOR_ID = 30000;
+   private int ACTOR_ID = 30000;
    private static CapturyPose pose;
    private final psyonicController psyonicControl = new psyonicController();
    private int numOfHands = 0;
@@ -58,8 +58,9 @@ public class remoteCapturyControl
       RemoteCapturyNativeLibrary.load();
    }
 
-   public void startConnection()
+   public void startConnection(int newACTOR_ID)
    {
+      ACTOR_ID = ACTOR_ID;
       // Makes sure the computer is disconnect before running everything else
       Captury_stopStreaming();
       Captury_disconnect();
@@ -75,14 +76,13 @@ public class remoteCapturyControl
       }
       System.out.println("Number of hands connected: " + numOfHands);
       psyonicControl.setFingerSpeeds();
-      getActor();
+      Captury_startTracking(ACTOR_ID, 0, 0, 720);
    }
 
-   private void getActor()
+   public void getActor()
    {
       // Keeps trying to connect to the actor until an actor is found
       // Usually in the 4th "Snapping Actor" print statement
-      Captury_startTracking(ACTOR_ID, 0, 0, 720);
       // Initialize actor
       CapturyActor actors = new CapturyActor();
       while (Captury_getActorStatus(ACTOR_ID) == ACTOR_UNKNOWN)
@@ -119,126 +119,148 @@ public class remoteCapturyControl
       Captury_stopStreaming();
       Captury_disconnect();
    }
+   public void stopTracking()
+   {
+      Captury_deleteActor(ACTOR_ID);
+      Captury_stopTracking(ACTOR_ID);
+   }
+   public boolean getPersonStatus()
+   {
+      return Captury_getActorStatus(ACTOR_ID) == ACTOR_TRACKING;
+   }
    private void updateTransforms()
    {
       // Gets the Pose from CapturyLive
       pose = Captury_getCurrentPose(ACTOR_ID);
-      for(int i = 0; i < fingerTransformNum.length; i++){
-         if(fingerTransformNum[i] == 14)
-         {
-            System.out.println(pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0) + " " + pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1) + " " + pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(2));
-            psyonicControl.setFingerAngles(2*pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0), i, 0, 0);
-            psyonicControl.setFingerAngles(Math.abs(2*pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1)), i, 1, 0);
-         }
-         else
-         {
-            float average = calculateAverage(fingerTransformNum[i], 2);
-            psyonicControl.setFingerAngles(Math.abs(2*average), i, 2, 0);
-         }
-      }
-      for(int i = 0; i < rightFingerTransformNum.length; i++){
-         if(rightFingerTransformNum[i] == 39)
-         {
-
-            psyonicControl.setFingerAngles(2*pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(0), i, 0, 1);
-            psyonicControl.setFingerAngles(Math.abs(2*pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(1)), i, 1, 1);
-         }
-         else
-         {
-            float average = calculateAverage(rightFingerTransformNum[i], 2);
-            psyonicControl.setFingerAngles(Math.abs(2*average), i, 2, 1);
-         }
-      }
-      for(int j = 0; j < jointNames.length; j++)
+      if (pose != null)
       {
-         // converts the euler angles to quaternion
-         float[] quat = new float[4];
-         float[] euler = {pose.transforms().getPointer(j + transformNum).rotation().get(0), pose.transforms().getPointer(j + transformNum).rotation().get(1), pose.transforms().getPointer(j + transformNum).rotation().get(2)};
-         liveEulerToQuaternion(euler, quat);
-
-         RigidBodyTransform transform = transforms[j];
-         transform.getRotation().setQuaternion(quat[3], quat[1], quat[2], quat[0]);
-         transform.getTranslation()
-                  .setX((pose.transforms().getPointer(j + transformNum).translation().get(2))
-                        * GLOBALSIZECHANGE);
-         transform.getTranslation()
-                  .setY((pose.transforms().getPointer(j + transformNum).translation().get(0))
-                        * GLOBALSIZECHANGE);
-         transform.getTranslation()
-                  .setZ((pose.transforms().getPointer(j + transformNum).translation().get(1))
-                        * GLOBALSIZECHANGE);
-      }
-   }
-   private void updateFrames() {
-      for (int j = 0; j < jointNames.length; j++) {
-         if (j <=1) {
-            referenceFrames[j] = ReferenceFrameTools.constructFrameWithChangingTransformToParent(jointNames[j], ReferenceFrame.getWorldFrame(), transforms[j]);
-         } else {
-            referenceFrames[j] = ReferenceFrameTools.constructFrameWithChangingTransformToParent(jointNames[j], referenceFrames[parentNum[j] - transformNum], transforms[j]);
+         for (int i = 0; i < fingerTransformNum.length; i++)
+         {
+            if (fingerTransformNum[i] == 14)
+            {
+               System.out.println(pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0) + " " + pose.transforms()
+                                                                                                                    .getPointer(fingerTransformNum[i])
+                                                                                                                    .rotation()
+                                                                                                                    .get(1) + " " + pose.transforms()
+                                                                                                                                        .getPointer(
+                                                                                                                                              fingerTransformNum[i])
+                                                                                                                                        .rotation()
+                                                                                                                                        .get(2));
+               psyonicControl.setFingerAngles(2 * pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0), i, 0, 0);
+               psyonicControl.setFingerAngles(Math.abs(2 * pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1)), i, 1, 0);
+            }
+            else
+            {
+               float average = calculateAverage(fingerTransformNum[i], 2);
+               psyonicControl.setFingerAngles(Math.abs(2 * average), i, 2, 0);
+            }
          }
+         for (int i = 0; i < rightFingerTransformNum.length; i++)
+         {
+            if (rightFingerTransformNum[i] == 39)
+            {
+
+               psyonicControl.setFingerAngles(2 * pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(0), i, 0, 1);
+               psyonicControl.setFingerAngles(Math.abs(2 * pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(1)), i, 1, 1);
+            }
+            else
+            {
+               float average = calculateAverage(rightFingerTransformNum[i], 2);
+               psyonicControl.setFingerAngles(Math.abs(2 * average), i, 2, 1);
+            }
+         }
+         //      for(int j = 0; j < jointNames.length; j++)
+         //      {
+         //         // converts the euler angles to quaternion
+         //         float[] quat = new float[4];
+         //         float[] euler = {pose.transforms().getPointer(j + transformNum).rotation().get(0), pose.transforms().getPointer(j + transformNum).rotation().get(1), pose.transforms().getPointer(j + transformNum).rotation().get(2)};
+         //         liveEulerToQuaternion(euler, quat);
+         //
+         //         RigidBodyTransform transform = transforms[j];
+         //         transform.getRotation().setQuaternion(quat[3], quat[1], quat[2], quat[0]);
+         //         transform.getTranslation()
+         //                  .setX((pose.transforms().getPointer(j + transformNum).translation().get(2))
+         //                        * GLOBALSIZECHANGE);
+         //         transform.getTranslation()
+         //                  .setY((pose.transforms().getPointer(j + transformNum).translation().get(0))
+         //                        * GLOBALSIZECHANGE);
+         //         transform.getTranslation()
+         //                  .setZ((pose.transforms().getPointer(j + transformNum).translation().get(1))
+         //                        * GLOBALSIZECHANGE);
+         //      }
+         //   private void updateFrames() {
+         //      for (int j = 0; j < jointNames.length; j++) {
+         //         if (j <=1) {
+         //            referenceFrames[j] = ReferenceFrameTools.constructFrameWithChangingTransformToParent(jointNames[j], ReferenceFrame.getWorldFrame(), transforms[j]);
+         //         } else {
+         //            referenceFrames[j] = ReferenceFrameTools.constructFrameWithChangingTransformToParent(jointNames[j], referenceFrames[parentNum[j] - transformNum], transforms[j]);
+         //         }
+         //      }
+         //   }
       }
    }
+
    public void updatePose(){
       updateTransforms();
-      updateFrames();
+//      updateFrames();
       psyonicControl.sendCommand();
-      for (int i = 0; i < jointNames.length; i++)
-      {
-         // Sets the framePose with respect to the reference frame
-         // Then converts to world frame
-         FramePose3D framePose = framePoses[i];
-         framePose.setToZero(referenceFrames[i]);
-         framePose.changeFrame(ReferenceFrame.getWorldFrame());
-      }
+//      for (int i = 0; i < jointNames.length; i++)
+//      {
+//         // Sets the framePose with respect to the reference frame
+//         // Then converts to world frame
+//         FramePose3D framePose = framePoses[i];
+//         framePose.setToZero(referenceFrames[i]);
+//         framePose.changeFrame(ReferenceFrame.getWorldFrame());
+//      }
    }
-   private static void liveEulerToMatrix(float[] euler, float[] m4x4) {
-      float c3 = (float) Math.cos(Math.toRadians(euler[0]));
-      float s3 = (float) Math.sin(Math.toRadians(euler[0]));
-      float c2 = (float) Math.cos(Math.toRadians(euler[1]));
-      float s2 = (float) Math.sin(Math.toRadians(euler[1]));
-      float c1 = (float) Math.cos(Math.toRadians(euler[2]));
-      float s1 = (float) Math.sin(Math.toRadians(euler[2]));
-
-      m4x4[0]  = c1*c2;         m4x4[1]  = c1*s2*s3 - c3*s1;  m4x4[2]  = s1*s3 + c1*c3*s2;  m4x4[3]  = 0.0f;
-      m4x4[4]  = c2*s1;         m4x4[5]  = c1*c3 + s1*s2*s3;  m4x4[6]  = c3*s1*s2 - c1*s3;  m4x4[7]  = 0.0f;
-      m4x4[8]  = -s2;           m4x4[9]  = c2*s3;             m4x4[10] = c2*c3;             m4x4[11] = 0.0f;
-      m4x4[12] = 0.0f;          m4x4[13] = 0.0f;              m4x4[14] = 0.0f;              m4x4[15] = 1.0f;
-   }
-   private static void liveMatrixToQuaternion(float[] m4x4, float[] quat) {
-      float trace = m4x4[0] + m4x4[5] + m4x4[10];
-      if (trace > 0.0f) {
-         float s = 0.5f / (float)Math.sqrt(trace + 1.0f);
-         quat[0] = 0.25f / s;
-         quat[1] = (m4x4[9] - m4x4[6]) * s;
-         quat[2] = (m4x4[2] - m4x4[8]) * s;
-         quat[3] = (m4x4[4] - m4x4[1]) * s;
-      } else {
-         if (m4x4[0] > m4x4[5] && m4x4[0] > m4x4[10]) {
-            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[0] - m4x4[5] - m4x4[10]);
-            quat[0] = (m4x4[9] - m4x4[6]) / s;
-            quat[1] = 0.25f * s;
-            quat[2] = (m4x4[1] + m4x4[4]) / s;
-            quat[3] = (m4x4[2] + m4x4[8]) / s;
-         } else if (m4x4[5] > m4x4[10]) {
-            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[5] - m4x4[0] - m4x4[10]);
-            quat[0] = (m4x4[2] - m4x4[8]) / s;
-            quat[1] = (m4x4[1] + m4x4[4]) / s;
-            quat[2] = 0.25f * s;
-            quat[3] = (m4x4[6] + m4x4[9]) / s;
-         } else {
-            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[10] - m4x4[0] - m4x4[5]);
-            quat[0] = (m4x4[4] - m4x4[1]) / s;
-            quat[1] = (m4x4[2] + m4x4[8]) / s;
-            quat[2] = (m4x4[6] + m4x4[9]) / s;
-            quat[3] = 0.25f * s;
-         }
-      }
-   }
-   private static void liveEulerToQuaternion(float[] euler, float[] quat) {
-      float[] mat = new float[16];
-      liveEulerToMatrix(euler, mat);
-      liveMatrixToQuaternion(mat, quat);
-   }
+//   private static void liveEulerToMatrix(float[] euler, float[] m4x4) {
+//      float c3 = (float) Math.cos(Math.toRadians(euler[0]));
+//      float s3 = (float) Math.sin(Math.toRadians(euler[0]));
+//      float c2 = (float) Math.cos(Math.toRadians(euler[1]));
+//      float s2 = (float) Math.sin(Math.toRadians(euler[1]));
+//      float c1 = (float) Math.cos(Math.toRadians(euler[2]));
+//      float s1 = (float) Math.sin(Math.toRadians(euler[2]));
+//
+//      m4x4[0]  = c1*c2;         m4x4[1]  = c1*s2*s3 - c3*s1;  m4x4[2]  = s1*s3 + c1*c3*s2;  m4x4[3]  = 0.0f;
+//      m4x4[4]  = c2*s1;         m4x4[5]  = c1*c3 + s1*s2*s3;  m4x4[6]  = c3*s1*s2 - c1*s3;  m4x4[7]  = 0.0f;
+//      m4x4[8]  = -s2;           m4x4[9]  = c2*s3;             m4x4[10] = c2*c3;             m4x4[11] = 0.0f;
+//      m4x4[12] = 0.0f;          m4x4[13] = 0.0f;              m4x4[14] = 0.0f;              m4x4[15] = 1.0f;
+//   }
+//   private static void liveMatrixToQuaternion(float[] m4x4, float[] quat) {
+//      float trace = m4x4[0] + m4x4[5] + m4x4[10];
+//      if (trace > 0.0f) {
+//         float s = 0.5f / (float)Math.sqrt(trace + 1.0f);
+//         quat[0] = 0.25f / s;
+//         quat[1] = (m4x4[9] - m4x4[6]) * s;
+//         quat[2] = (m4x4[2] - m4x4[8]) * s;
+//         quat[3] = (m4x4[4] - m4x4[1]) * s;
+//      } else {
+//         if (m4x4[0] > m4x4[5] && m4x4[0] > m4x4[10]) {
+//            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[0] - m4x4[5] - m4x4[10]);
+//            quat[0] = (m4x4[9] - m4x4[6]) / s;
+//            quat[1] = 0.25f * s;
+//            quat[2] = (m4x4[1] + m4x4[4]) / s;
+//            quat[3] = (m4x4[2] + m4x4[8]) / s;
+//         } else if (m4x4[5] > m4x4[10]) {
+//            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[5] - m4x4[0] - m4x4[10]);
+//            quat[0] = (m4x4[2] - m4x4[8]) / s;
+//            quat[1] = (m4x4[1] + m4x4[4]) / s;
+//            quat[2] = 0.25f * s;
+//            quat[3] = (m4x4[6] + m4x4[9]) / s;
+//         } else {
+//            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[10] - m4x4[0] - m4x4[5]);
+//            quat[0] = (m4x4[4] - m4x4[1]) / s;
+//            quat[1] = (m4x4[2] + m4x4[8]) / s;
+//            quat[2] = (m4x4[6] + m4x4[9]) / s;
+//            quat[3] = 0.25f * s;
+//         }
+//      }
+//   }
+//   private static void liveEulerToQuaternion(float[] euler, float[] quat) {
+//      float[] mat = new float[16];
+//      liveEulerToMatrix(euler, mat);
+//      liveMatrixToQuaternion(mat, quat);
+//   }
 
    private float calculateAverage(int initialTransformNum, int num)
    {
@@ -250,5 +272,10 @@ public class remoteCapturyControl
       }
       sum/=4;
       return sum;
+   }
+
+   public void setACTOR_ID(int ACTOR_ID)
+   {
+      this.ACTOR_ID = ACTOR_ID;
    }
 }

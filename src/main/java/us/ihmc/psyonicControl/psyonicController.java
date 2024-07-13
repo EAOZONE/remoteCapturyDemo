@@ -99,7 +99,6 @@ public class psyonicController
             }
             if(hand == 1)
             {
-               angle *= 1.5;
                rightHandControlCommand.setThumbFlexorPosition(angle);
             }
 
