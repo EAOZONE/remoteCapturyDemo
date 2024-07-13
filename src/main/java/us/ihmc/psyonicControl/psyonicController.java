@@ -15,7 +15,7 @@ public class psyonicController
 
    private final float tau = 0.1f;
 
-   private final float deadbandThreshold = 2.0f;
+   private final float deadbandThreshold = 8.0f;
    public int bluetoothConnect()
    {
       try
@@ -61,8 +61,11 @@ public class psyonicController
    {float filteredAngle;
       if (hand == 0) {
          filteredAngle = leftPreviousAngles[fingerNum] + tau * (angle - leftPreviousAngles[fingerNum]);
-      } else {
+      } else if (hand == 1){
          filteredAngle = rightPreviousAngles[fingerNum] + tau * (angle - rightPreviousAngles[fingerNum]);
+      }
+      else {
+         filteredAngle = 0;
       }
 
       if (Math.abs(filteredAngle - angle) < deadbandThreshold) {
@@ -96,6 +99,7 @@ public class psyonicController
             }
             if(hand == 1)
             {
+               angle *= 1.5;
                rightHandControlCommand.setThumbFlexorPosition(angle);
             }
 
@@ -118,14 +122,14 @@ public class psyonicController
             }
             if(hand == 1)
             {
-               angle = -(60 - angle);
+               angle = angle - 100;
                if (angle > 0)
                {
                   angle = 0;
                }
-               else if (angle < -80)
+               if (angle < -100)
                {
-                  angle = -80;
+                  angle = -100;
                }
                rightHandControlCommand.setThumbRotatorPosition(angle);
             }

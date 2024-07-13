@@ -69,7 +69,7 @@ public class remoteCapturyControl
       }
       // Start tracking
       connect();
-      while(numOfHands < 2)
+      while(numOfHands < 1)
       {
          numOfHands = psyonicControl.bluetoothConnect();
       }
@@ -126,6 +126,7 @@ public class remoteCapturyControl
       for(int i = 0; i < fingerTransformNum.length; i++){
          if(fingerTransformNum[i] == 14)
          {
+            System.out.println(pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0) + " " + pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1) + " " + pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(2));
             psyonicControl.setFingerAngles(2*pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0), i, 0, 0);
             psyonicControl.setFingerAngles(Math.abs(2*pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1)), i, 1, 0);
          }
@@ -138,6 +139,7 @@ public class remoteCapturyControl
       for(int i = 0; i < rightFingerTransformNum.length; i++){
          if(rightFingerTransformNum[i] == 39)
          {
+
             psyonicControl.setFingerAngles(2*pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(0), i, 0, 1);
             psyonicControl.setFingerAngles(Math.abs(2*pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(1)), i, 1, 1);
          }
