@@ -8,9 +8,14 @@ public class psyonicController
    private final String[] handAddresses = new String[] {"DE:76:4F:34:6F:E1", "F9:C8:0F:A7:A4:D5"};
    private final AbilityHandIndividualFingerControlCommand leftHandControlCommand = new AbilityHandIndividualFingerControlCommand();
    private final AbilityHandIndividualFingerControlCommand rightHandControlCommand = new AbilityHandIndividualFingerControlCommand();
-
    AbilityHandBLEManager bleManager = new AbilityHandBLEManager(handAddresses);
 
+   private final float[] leftPreviousAngles = new float[6];
+   private final float[] rightPreviousAngles = new float[6];
+
+   private final float tau = 0.1f;
+
+   private final float deadbandThreshold = 2.0f;
    public int bluetoothConnect()
    {
       try
@@ -35,6 +40,10 @@ public class psyonicController
    }
    public void setFingerSpeeds()
    {
+      for (int i = 0; i < 6; i++) {
+         leftPreviousAngles[i] = 0.0f;
+         rightPreviousAngles[i] = 0.0f;
+      }
       leftHandControlCommand.setThumbFlexorPeriod(0.0F);
       leftHandControlCommand.setThumbRotatorPeriod(0.0F);
       leftHandControlCommand.setIndexPeriod(0.0F);
@@ -49,7 +58,17 @@ public class psyonicController
       rightHandControlCommand.setPinkyPeriod(0.0F);
    }
    public void setFingerAngles(float angle, int fingerNum, int x, int hand)
-   {
+   {float filteredAngle;
+      if (hand == 0) {
+         filteredAngle = leftPreviousAngles[fingerNum] + tau * (angle - leftPreviousAngles[fingerNum]);
+      } else {
+         filteredAngle = rightPreviousAngles[fingerNum] + tau * (angle - rightPreviousAngles[fingerNum]);
+      }
+
+      if (Math.abs(filteredAngle - angle) < deadbandThreshold) {
+         angle = filteredAngle;
+      }
+
       if(angle > 150)
       {
          angle = 150;
@@ -57,6 +76,15 @@ public class psyonicController
       else if (angle <= 0)
       {
          angle = 0;
+      }
+
+      if(hand == 0)
+      {
+         leftPreviousAngles[fingerNum] = angle;
+      }
+      else if(hand == 1)
+      {
+         rightPreviousAngles[fingerNum] = angle;
       }
       if(fingerNum == 0)
       {
