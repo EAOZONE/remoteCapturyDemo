@@ -70,9 +70,10 @@ public class remoteCapturyControl
       }
       // Start tracking
       connect();
-      while(numOfHands < 1)
+      while(numOfHands < 2)
       {
          numOfHands = psyonicControl.bluetoothConnect();
+         System.out.println(numOfHands);
       }
       System.out.println("Number of hands connected: " + numOfHands);
       psyonicControl.setFingerSpeeds();

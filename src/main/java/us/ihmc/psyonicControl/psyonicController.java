@@ -15,7 +15,7 @@ public class psyonicController
 
    private final float tau = 0.1f;
 
-   private final float deadbandThreshold = 8.0f;
+   private final float deadbandThreshold = 2.0f;
    public int bluetoothConnect()
    {
       try
