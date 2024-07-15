@@ -113,9 +113,9 @@ public class remoteCapturyControl
    public void stopConnection()
    {
       // Disconnects from All connected software
+      System.out.println("Disconnecting");
       psyonicControl.bluetoothDisconnect();
-      Captury_deleteActor(ACTOR_ID);
-      Captury_stopTracking(ACTOR_ID); // TODO: does this need to come before deleteActor?
+      stopTracking(); // TODO: does this need to come before deleteActor?
       Captury_stopStreaming();
       Captury_disconnect();
    }
@@ -138,14 +138,6 @@ public class remoteCapturyControl
          {
             if (fingerTransformNum[i] == 14)
             {
-               System.out.println(pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0) + " " + pose.transforms()
-                                                                                                                    .getPointer(fingerTransformNum[i])
-                                                                                                                    .rotation()
-                                                                                                                    .get(1) + " " + pose.transforms()
-                                                                                                                                        .getPointer(
-                                                                                                                                              fingerTransformNum[i])
-                                                                                                                                        .rotation()
-                                                                                                                                        .get(2));
                psyonicControl.setFingerAngles(2 * pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0), i, 0, 0);
                psyonicControl.setFingerAngles(Math.abs(2 * pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1)), i, 1, 0);
             }

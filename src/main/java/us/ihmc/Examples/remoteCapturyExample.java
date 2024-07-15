@@ -10,17 +10,19 @@ public class remoteCapturyExample
    public static void main(String[] args) throws InterruptedException
    {
       remoteCaptury.loadLibrary();
+      Runtime.getRuntime().addShutdownHook(new Thread(()->{
+         running = false;
+         remoteCaptury.stopConnection();
+   }));
       remoteCaptury.startConnection(ACTOR_ID);
       while(running)
       {
-         loopConnectionAndRunningHand();
+         remoteCapturyTrackingAndHandControl();
          ACTOR_ID++;
          remoteCaptury.setACTOR_ID(ACTOR_ID);
       }
-
-      remoteCaptury.stopConnection();
    }
-   private static void loopConnectionAndRunningHand() throws InterruptedException
+   private static void remoteCapturyTrackingAndHandControl() throws InterruptedException
    {
       remoteCaptury.getActor();
       Thread.sleep(1000);

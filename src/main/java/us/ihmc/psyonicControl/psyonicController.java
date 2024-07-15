@@ -44,13 +44,13 @@ public class psyonicController
          leftPreviousAngles[i] = 0.0f;
          rightPreviousAngles[i] = 0.0f;
       }
-      leftHandControlCommand.setThumbFlexorPeriod(0.0F);
+      leftHandControlCommand.setThumbFlexorPeriod(0.5F);
       leftHandControlCommand.setThumbRotatorPeriod(0.0F);
       leftHandControlCommand.setIndexPeriod(0.0F);
       leftHandControlCommand.setMiddlePeriod(0.0F);
       leftHandControlCommand.setRingPeriod(0.0F);
       leftHandControlCommand.setPinkyPeriod(0.0F);
-      rightHandControlCommand.setThumbFlexorPeriod(0.0F);
+      rightHandControlCommand.setThumbFlexorPeriod(0.5F);
       rightHandControlCommand.setThumbRotatorPeriod(0.0F);
       rightHandControlCommand.setIndexPeriod(0.0F);
       rightHandControlCommand.setMiddlePeriod(0.0F);
@@ -72,9 +72,9 @@ public class psyonicController
          angle = filteredAngle;
       }
 
-      if(angle > 150)
+      if(angle > 130)
       {
-         angle = 150;
+         angle = 130;
       }
       else if (angle <= 0)
       {
