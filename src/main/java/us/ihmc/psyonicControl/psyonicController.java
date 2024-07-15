@@ -13,9 +13,9 @@ public class psyonicController
    private final float[] leftPreviousAngles = new float[6];
    private final float[] rightPreviousAngles = new float[6];
 
-   private final float tau = 0.1f;
+   private final float tau = 0.05f;
 
-   private final float deadbandThreshold = 2.0f;
+   private final float deadbandThreshold = 10.0f;
    public int bluetoothConnect()
    {
       try

@@ -60,7 +60,7 @@ public class remoteCapturyControl
 
    public void startConnection(int newACTOR_ID)
    {
-      ACTOR_ID = ACTOR_ID;
+      ACTOR_ID = newACTOR_ID;
       // Makes sure the computer is disconnect before running everything else
       Captury_stopStreaming();
       Captury_disconnect();
