@@ -58,9 +58,11 @@ public class remoteCapturyControl
       RemoteCapturyNativeLibrary.load();
    }
 
-   public void startConnection(int newACTOR_ID)
+   public void startConnection(int newACTOR_ID) throws InterruptedException
    {
       ACTOR_ID = newACTOR_ID;
+      connect();
+      Thread.sleep(100);
       // Makes sure the computer is disconnect before running everything else
       Captury_stopStreaming();
       Captury_disconnect();
@@ -70,10 +72,10 @@ public class remoteCapturyControl
       }
       // Start tracking
       connect();
-      while(numOfHands < 2)
+      while(numOfHands < 1)
       {
-         numOfHands = psyonicControl.bluetoothConnect();
          System.out.println(numOfHands);
+         numOfHands = psyonicControl.bluetoothConnect();
       }
       System.out.println("Number of hands connected: " + numOfHands);
       psyonicControl.setFingerSpeeds();
@@ -193,67 +195,12 @@ public class remoteCapturyControl
       }
    }
 
-   public void updatePose(){
+   public void updatePose()
+   {
       updateTransforms();
-//      updateFrames();
+      //      updateFrames();
       psyonicControl.sendCommand();
-//      for (int i = 0; i < jointNames.length; i++)
-//      {
-//         // Sets the framePose with respect to the reference frame
-//         // Then converts to world frame
-//         FramePose3D framePose = framePoses[i];
-//         framePose.setToZero(referenceFrames[i]);
-//         framePose.changeFrame(ReferenceFrame.getWorldFrame());
-//      }
    }
-//   private static void liveEulerToMatrix(float[] euler, float[] m4x4) {
-//      float c3 = (float) Math.cos(Math.toRadians(euler[0]));
-//      float s3 = (float) Math.sin(Math.toRadians(euler[0]));
-//      float c2 = (float) Math.cos(Math.toRadians(euler[1]));
-//      float s2 = (float) Math.sin(Math.toRadians(euler[1]));
-//      float c1 = (float) Math.cos(Math.toRadians(euler[2]));
-//      float s1 = (float) Math.sin(Math.toRadians(euler[2]));
-//
-//      m4x4[0]  = c1*c2;         m4x4[1]  = c1*s2*s3 - c3*s1;  m4x4[2]  = s1*s3 + c1*c3*s2;  m4x4[3]  = 0.0f;
-//      m4x4[4]  = c2*s1;         m4x4[5]  = c1*c3 + s1*s2*s3;  m4x4[6]  = c3*s1*s2 - c1*s3;  m4x4[7]  = 0.0f;
-//      m4x4[8]  = -s2;           m4x4[9]  = c2*s3;             m4x4[10] = c2*c3;             m4x4[11] = 0.0f;
-//      m4x4[12] = 0.0f;          m4x4[13] = 0.0f;              m4x4[14] = 0.0f;              m4x4[15] = 1.0f;
-//   }
-//   private static void liveMatrixToQuaternion(float[] m4x4, float[] quat) {
-//      float trace = m4x4[0] + m4x4[5] + m4x4[10];
-//      if (trace > 0.0f) {
-//         float s = 0.5f / (float)Math.sqrt(trace + 1.0f);
-//         quat[0] = 0.25f / s;
-//         quat[1] = (m4x4[9] - m4x4[6]) * s;
-//         quat[2] = (m4x4[2] - m4x4[8]) * s;
-//         quat[3] = (m4x4[4] - m4x4[1]) * s;
-//      } else {
-//         if (m4x4[0] > m4x4[5] && m4x4[0] > m4x4[10]) {
-//            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[0] - m4x4[5] - m4x4[10]);
-//            quat[0] = (m4x4[9] - m4x4[6]) / s;
-//            quat[1] = 0.25f * s;
-//            quat[2] = (m4x4[1] + m4x4[4]) / s;
-//            quat[3] = (m4x4[2] + m4x4[8]) / s;
-//         } else if (m4x4[5] > m4x4[10]) {
-//            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[5] - m4x4[0] - m4x4[10]);
-//            quat[0] = (m4x4[2] - m4x4[8]) / s;
-//            quat[1] = (m4x4[1] + m4x4[4]) / s;
-//            quat[2] = 0.25f * s;
-//            quat[3] = (m4x4[6] + m4x4[9]) / s;
-//         } else {
-//            float s = 2.0f * (float)Math.sqrt(1.0f + m4x4[10] - m4x4[0] - m4x4[5]);
-//            quat[0] = (m4x4[4] - m4x4[1]) / s;
-//            quat[1] = (m4x4[2] + m4x4[8]) / s;
-//            quat[2] = (m4x4[6] + m4x4[9]) / s;
-//            quat[3] = 0.25f * s;
-//         }
-//      }
-//   }
-//   private static void liveEulerToQuaternion(float[] euler, float[] quat) {
-//      float[] mat = new float[16];
-//      liveEulerToMatrix(euler, mat);
-//      liveMatrixToQuaternion(mat, quat);
-//   }
 
    private float calculateAverage(int initialTransformNum, int num)
    {
