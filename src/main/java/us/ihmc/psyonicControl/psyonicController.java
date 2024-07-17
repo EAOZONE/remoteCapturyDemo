@@ -23,12 +23,6 @@ public class psyonicController
    private final double[] leftPreviousAngles = new double[6];
    private final double[] rightPreviousAngles = new double[6];
 
-   //All want to be yovariables
-//   private final double tau = 0.05f;
-//   private final double deadbandThreshold = 2.0f;
-//   private final double MAXANGLE = 90.0f;
-//   private final double MINANGLE = 0.0f;
-
    public static final double YO_VARIABLE_SERVER_UPDATE_PERIOD = 1 / 100.0;
 
    private YoVariableServer yoVariableServer;
@@ -172,7 +166,6 @@ public class psyonicController
             }
             else if(hand == 1)
             {
-               System.out.println(angle);
                if (angle <= minAngle.getValue())
                {
                   angle = minAngle.getValue();
