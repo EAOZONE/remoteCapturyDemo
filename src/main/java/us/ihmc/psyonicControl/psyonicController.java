@@ -44,7 +44,7 @@ public class psyonicController
    public psyonicController()
    {
       tau.set(0.4);
-      deadbandThreshold.set(8);
+      deadbandThreshold.set(5);
       minAngle.set(9.0);
       maxAngle.set(96);
 
@@ -120,7 +120,7 @@ public class psyonicController
    }
    public void setFingerAngles(double angle, int fingerNum, int x, int hand)
    {
-      if(fingerNum > 1)
+      if(fingerNum > 0)
       {
          if (hand == 0)
          {
@@ -139,7 +139,7 @@ public class psyonicController
             }
          }
       }
-      if(fingerNum > 1)
+      if(fingerNum > 0)
       {
          if (angle > maxAngle.getValue())
          {
