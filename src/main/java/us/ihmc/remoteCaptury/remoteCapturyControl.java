@@ -124,12 +124,12 @@ public class remoteCapturyControl
    }
    public void stopTracking()
    {
-      Captury_deleteActor(ACTOR_ID);
       Captury_stopTracking(ACTOR_ID);
+      Captury_deleteActor(ACTOR_ID);
    }
    public boolean getPersonStatus()
    {
-      return Captury_getActorStatus(ACTOR_ID) == ACTOR_TRACKING;
+      return Captury_getActorStatus(ACTOR_ID) != ACTOR_DELETED;
    }
    private void updateTransforms()
    {

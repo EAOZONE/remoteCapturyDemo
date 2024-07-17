@@ -44,8 +44,8 @@ public class psyonicController
    public psyonicController()
    {
       tau.set(0.150);
-      deadbandThreshold.set(12.165);
-      minAngle.set(5.0);
+      deadbandThreshold.set(12.17);
+      minAngle.set(9.0);
       maxAngle.set(96);
 
       // start YoVariableServer
@@ -163,6 +163,7 @@ public class psyonicController
             }
             if(hand == 1)
             {
+               angle *= 1.5;
                rightHandControlCommand.setThumbFlexorPosition((float) angle);
             }
 
@@ -176,11 +177,10 @@ public class psyonicController
                {
                   angle = 0;
                }
-               else if (angle < -80)
+               else if(angle < -80)
                {
                   angle = -80;
                }
-
                leftHandControlCommand.setThumbRotatorPosition((float) angle);
             }
             if(hand == 1)
@@ -190,9 +190,9 @@ public class psyonicController
                {
                   angle = 0;
                }
-               if (angle < -100)
+               else if(angle < -120)
                {
-                  angle = -100;
+                  angle = -120;
                }
                rightHandControlCommand.setThumbRotatorPosition((float) angle);
             }
@@ -200,6 +200,10 @@ public class psyonicController
       }
       if(fingerNum == 1)
       {
+         if(angle > maxAngle.getValue() - 5)
+         {
+            angle = maxAngle.getValue()-5;
+         }
          if(hand == 0)
          {
             leftHandControlCommand.setIndexPosition((float) angle);
