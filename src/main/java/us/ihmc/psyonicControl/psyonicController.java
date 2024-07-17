@@ -129,11 +129,10 @@ public class psyonicController
       else {
          filteredAngle = 0;
       }
-
-      if (Math.abs(filteredAngle - angle) < deadbandThreshold.getValue()) {
+      if (Math.abs(filteredAngle - angle) < deadbandThreshold.getValue())
+      {
          angle = filteredAngle;
       }
-
       if(fingerNum > 1)
       {
          if (angle > maxAngle.getValue())
@@ -157,11 +156,16 @@ public class psyonicController
       {
          if (x == 0)
          {
+            if (angle <= minAngle.getValue())
+            {
+               angle = minAngle.getValue();
+            }
+
             if(hand == 0)
             {
                leftHandControlCommand.setThumbFlexorPosition((float) angle);
             }
-            if(hand == 1)
+            else if(hand == 1)
             {
                angle *= 1.5;
                rightHandControlCommand.setThumbFlexorPosition((float) angle);
@@ -172,18 +176,18 @@ public class psyonicController
          {
             if(hand == 0)
             {
-               angle = -(80 - angle);
+               angle = -(100 - angle);
                if (angle > 0)
                {
                   angle = 0;
                }
-               else if(angle < -80)
+               else if(angle < -74)
                {
                   angle = -80;
                }
                leftHandControlCommand.setThumbRotatorPosition((float) angle);
             }
-            if(hand == 1)
+            else if(hand == 1)
             {
                angle = angle - 100;
                if (angle > 0)
@@ -208,7 +212,7 @@ public class psyonicController
          {
             leftHandControlCommand.setIndexPosition((float) angle);
          }
-         if(hand == 1)
+         else if(hand == 1)
          {
             rightHandControlCommand.setIndexPosition((float) angle);
          }
@@ -219,7 +223,7 @@ public class psyonicController
          {
             leftHandControlCommand.setMiddlePosition((float) angle);
          }
-         if(hand == 1)
+         else if(hand == 1)
          {
             rightHandControlCommand.setMiddlePosition((float) angle);
          }
@@ -230,7 +234,7 @@ public class psyonicController
          {
             leftHandControlCommand.setRingPosition((float) angle);
          }
-         if(hand == 1)
+         else if(hand == 1)
          {
             rightHandControlCommand.setRingPosition((float) angle);
          }
@@ -241,7 +245,7 @@ public class psyonicController
          {
             leftHandControlCommand.setPinkyPosition((float) angle);
          }
-         if(hand == 1)
+         else if(hand == 1)
          {
             rightHandControlCommand.setPinkyPosition((float) angle);
          }

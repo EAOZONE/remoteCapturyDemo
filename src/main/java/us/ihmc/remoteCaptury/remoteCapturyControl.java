@@ -2,12 +2,10 @@ package us.ihmc.remoteCaptury;
 
 import us.ihmc.euclid.referenceFrame.FramePose3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
-import us.ihmc.euclid.referenceFrame.tools.ReferenceFrameTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.psyonicControl.psyonicController;
 import us.ihmc.remotecaptury.CapturyActor;
 import us.ihmc.remotecaptury.CapturyPose;
-import us.ihmc.abilityhand.*;
 import us.ihmc.remotecaptury.library.RemoteCapturyNativeLibrary;
 
 import static us.ihmc.remotecaptury.global.remotecaptury.*;
@@ -22,7 +20,7 @@ public class remoteCapturyControl
    private final RigidBodyTransform[] transforms = new RigidBodyTransform[jointNames.length];
    private final ReferenceFrame[] referenceFrames = new ReferenceFrame[jointNames.length];
    private final FramePose3D[] framePoses = new FramePose3D[jointNames.length];
-   private final int[] fingerTransformNum = {14, 18, 22, 26, 30};
+   private final int[] leftFingerTransformNum = {14, 18, 22, 26, 30};
    private final int[] rightFingerTransformNum = {39, 43, 47, 51, 54};
    private final int transformNum = 0;
    private int ACTOR_ID = 30000;
@@ -137,16 +135,16 @@ public class remoteCapturyControl
       pose = Captury_getCurrentPose(ACTOR_ID);
       if (pose != null)
       {
-         for (int i = 0; i < fingerTransformNum.length; i++)
+         for (int i = 0; i < leftFingerTransformNum.length; i++)
          {
-            if (fingerTransformNum[i] == 14)
+            if (leftFingerTransformNum[i] == 14)
             {
-               psyonicControl.setFingerAngles(2 * pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(0), i, 0, 0);
-               psyonicControl.setFingerAngles(Math.abs(2 * pose.transforms().getPointer(fingerTransformNum[i]).rotation().get(1)), i, 1, 0);
+               psyonicControl.setFingerAngles(2 * pose.transforms().getPointer(leftFingerTransformNum[i]).rotation().get(0), i, 0, 0);
+               psyonicControl.setFingerAngles(Math.abs(2 * pose.transforms().getPointer(leftFingerTransformNum[i]).rotation().get(1)), i, 1, 0);
             }
             else
             {
-               float average = calculateAverage(fingerTransformNum[i], 2);
+               float average = calculateAverage(leftFingerTransformNum[i], 2);
                psyonicControl.setFingerAngles(Math.abs(2 * average), i, 2, 0);
             }
          }
@@ -154,7 +152,6 @@ public class remoteCapturyControl
          {
             if (rightFingerTransformNum[i] == 39)
             {
-
                psyonicControl.setFingerAngles(2 * pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(0), i, 0, 1);
                psyonicControl.setFingerAngles(Math.abs(2 * pose.transforms().getPointer(rightFingerTransformNum[i]).rotation().get(1)), i, 1, 1);
             }
