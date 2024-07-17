@@ -166,6 +166,7 @@ public class psyonicController
             }
             else if(hand == 1)
             {
+               angle *= 1.5;
                if (angle <= minAngle.getValue())
                {
                   angle = minAngle.getValue();
