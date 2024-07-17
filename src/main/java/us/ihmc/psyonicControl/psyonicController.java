@@ -43,8 +43,8 @@ public class psyonicController
 
    public psyonicController()
    {
-      tau.set(0.150);
-      deadbandThreshold.set(12.17);
+      tau.set(0.4);
+      deadbandThreshold.set(8);
       minAngle.set(9.0);
       maxAngle.set(96);
 
@@ -106,13 +106,13 @@ public class psyonicController
          rightPreviousAngles[i] = 0.0f;
       }
       leftHandControlCommand.setThumbFlexorPeriod(0.0F);
-      leftHandControlCommand.setThumbRotatorPeriod(0.0F);
+      leftHandControlCommand.setThumbRotatorPeriod(0.5F);
       leftHandControlCommand.setIndexPeriod(0.0F);
       leftHandControlCommand.setMiddlePeriod(0.0F);
       leftHandControlCommand.setRingPeriod(0.0F);
       leftHandControlCommand.setPinkyPeriod(0.0F);
       rightHandControlCommand.setThumbFlexorPeriod(0.0F);
-      rightHandControlCommand.setThumbRotatorPeriod(0.0F);
+      rightHandControlCommand.setThumbRotatorPeriod(0.5F);
       rightHandControlCommand.setIndexPeriod(0.0F);
       rightHandControlCommand.setMiddlePeriod(0.0F);
       rightHandControlCommand.setRingPeriod(0.0F);
@@ -120,18 +120,24 @@ public class psyonicController
    }
    public void setFingerAngles(double angle, int fingerNum, int x, int hand)
    {
-      double filteredAngle;
-      if (hand == 0) {
-         filteredAngle = leftPreviousAngles[fingerNum] + tau.getValue() * (angle - leftPreviousAngles[fingerNum]);
-      } else if (hand == 1){
-         filteredAngle = rightPreviousAngles[fingerNum] + tau.getValue() * (angle - rightPreviousAngles[fingerNum]);
-      }
-      else {
-         filteredAngle = 0;
-      }
-      if (Math.abs(filteredAngle - angle) < deadbandThreshold.getValue())
+      if(fingerNum > 1)
       {
-         angle = filteredAngle;
+         if (hand == 0)
+         {
+            angle = tau.getValue() * angle + (1 - tau.getValue()) * leftPreviousAngles[fingerNum];
+            if (Math.abs(leftPreviousAngles[fingerNum] - angle) < deadbandThreshold.getValue())
+            {
+               angle = leftPreviousAngles[fingerNum];
+            }
+         }
+         else if (hand == 1)
+         {
+            angle = tau.getValue() * angle + (1 - tau.getValue()) * rightPreviousAngles[fingerNum];
+            if (Math.abs(rightPreviousAngles[fingerNum] - angle) < deadbandThreshold.getValue())
+            {
+               angle = rightPreviousAngles[fingerNum];
+            }
+         }
       }
       if(fingerNum > 1)
       {
@@ -156,18 +162,21 @@ public class psyonicController
       {
          if (x == 0)
          {
-            if (angle <= minAngle.getValue())
-            {
-               angle = minAngle.getValue();
-            }
-
             if(hand == 0)
             {
+               if (angle <= minAngle.getValue())
+               {
+                  angle = minAngle.getValue();
+               }
                leftHandControlCommand.setThumbFlexorPosition((float) angle);
             }
             else if(hand == 1)
             {
-               angle *= 1.5;
+               System.out.println(angle);
+               if (angle <= minAngle.getValue())
+               {
+                  angle = minAngle.getValue();
+               }
                rightHandControlCommand.setThumbFlexorPosition((float) angle);
             }
 
@@ -207,6 +216,10 @@ public class psyonicController
          if(angle > maxAngle.getValue() - 5)
          {
             angle = maxAngle.getValue()-5;
+         }
+         else if (angle < minAngle.getValue())
+         {
+            angle = minAngle.getValue();
          }
          if(hand == 0)
          {
