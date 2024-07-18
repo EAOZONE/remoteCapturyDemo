@@ -37,8 +37,8 @@ public class psyonicController
 
    public psyonicController()
    {
-      tau.set(0.4);
-      deadbandThreshold.set(5);
+      tau.set(0.25);
+      deadbandThreshold.set(6.5);
       minAngle.set(9.0);
       maxAngle.set(96);
 
